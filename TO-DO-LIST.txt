@@ -1,0 +1,80 @@
+import tkinter as tk
+from tkinter import messagebox, simpledialog
+
+# Function to add a new task
+def add_task():
+    task = simpledialog.askstring("Input", "Enter a new task:", parent=window)
+    if task:
+        listbox_tasks.insert(tk.END, task)
+        save_tasks()
+
+# Function to remove the selected task
+def remove_task():
+    try:
+        task_index = listbox_tasks.curselection()[0]
+        listbox_tasks.delete(task_index)
+        save_tasks()
+    except:
+        messagebox.showwarning("Warning", "Please select a task to remove.")
+
+# Function to mark the selected task as completed
+def mark_completed():
+    try:
+        task_index = listbox_tasks.curselection()[0]
+        task = listbox_tasks.get(task_index)
+        listbox_tasks.delete(task_index)
+        listbox_tasks.insert(tk.END, f"✔️ {task}")
+        save_tasks()
+    except:
+        messagebox.showwarning("Warning", "Please select a task to mark as completed.")
+
+# Function to save tasks to a file
+def save_tasks():
+    with open("tasks.txt", "w") as f:
+        tasks = listbox_tasks.get(0, tk.END)
+        for task in tasks:
+            f.write(f"{task}\n")
+
+# Function to load tasks from a file
+def load_tasks():
+    try:
+        with open("tasks.txt", "r") as f:
+            tasks = f.readlines()
+            for task in tasks:
+                listbox_tasks.insert(tk.END, task.strip())
+    except FileNotFoundError:
+        pass
+
+# Main window setup
+window = tk.Tk()
+window.title("Colorful To-Do List")
+window.geometry("400x400")
+window.config(bg="#f0f8ff")
+
+# Setting up fonts and button colors
+button_font = ("Helvetica", 12, "bold")
+listbox_font = ("Helvetica", 14)
+button_color = "#ffb6c1"  # Light pink for buttons
+
+# Create a listbox to display tasks
+listbox_tasks = tk.Listbox(window, height=10, width=50, font=listbox_font, bg="#ffffe0", fg="#333333")
+listbox_tasks.pack(pady=20)
+
+# Load existing tasks from the file
+load_tasks()
+
+# Create buttons for adding, removing, and marking tasks as completed
+button_frame = tk.Frame(window, bg="#f0f8ff")
+button_frame.pack(pady=20)
+
+add_button = tk.Button(button_frame, text="Add Task", width=15, font=button_font, bg=button_color, command=add_task)
+remove_button = tk.Button(button_frame, text="Remove Task", width=15, font=button_font, bg=button_color, command=remove_task)
+completed_button = tk.Button(button_frame, text="Mark Completed", width=15, font=button_font, bg=button_color, command=mark_completed)
+
+# Place the buttons in the frame
+add_button.grid(row=0, column=0, padx=10)
+remove_button.grid(row=0, column=1, padx=10)
+completed_button.grid(row=1, column=0, columnspan=2, pady=10)
+
+# Running the main window loop
+window.mainloop()
